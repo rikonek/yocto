@@ -60,7 +60,22 @@ bitbake-layers add-layer ../meta-myrpi
 
 ### Konfiguracja
 
-Kreator utworzył plik konfiguracyjny w którym nie trzeba nic zmieniać.
+Kreator utworzył plik konfiguracyjny. Należy ustawić jego priorytet.
+
+Sprawdzamy priorytety dodanych warstw
+```bash
+bitbake-layers show-layers
+```
+```vim
+layer                 path                                      priority
+==========================================================================
+meta                  ~/poky/meta           5
+meta-poky             ~/poky/meta-poky      5
+meta-raspberrypi      ~/poky/meta-raspberrypi  9
+meta-myrpi            ~/poky/meta-myrpi     6
+```
+
+Ustawiamy większy priorytet niż meta-raspberrypi
 
 ```bash
 vim ~/poky/meta-myrpi/conf/layer.conf
@@ -75,13 +90,15 @@ BBFILES += "${LAYERDIR}/recipes-*/*/*.bb \
 
 BBFILE_COLLECTIONS += "meta-myrpi"
 BBFILE_PATTERN_meta-myrpi = "^${LAYERDIR}/"
-BBFILE_PRIORITY_meta-myrpi = "6"
+-BBFILE_PRIORITY_meta-myrpi = "6"
++BBFILE_PRIORITY_meta-myrpi = "10"
 
 LAYERDEPENDS_meta-myrpi = "core"
 LAYERSERIES_COMPAT_meta-myrpi = "gatesgarth"
 ```
 - BBPATH - dodaje bieżący katalog warstwy do BBPATH, który używany jest przez bitbake podczas kompilacji
 - BBFILES - dodaje pliki do receptur podczas kompilacji
+- BBFILE_PRIORITY - priorytet warstwy; wyższy numer jest ważniejszy niż niższy
 - LAYERSERIES_COMPAT_ - określa minimalną wersję poky z którą tworzona warstwa jest kompatybilna
 
 ### Receptury
@@ -274,4 +291,5 @@ bitbake -c devshell nazwa_pakietu #uruchomienie powłoki deweloperskiej
 bitbake -c compile nazwa_pakietu #wykonanie zadania compile
 bitbake -c populate_sdk core-image-base #budowanie SDK dla core-image-base
 bitbake myrpi-image -e | grep ^IMAGE_INSTALL #sprawdzenie zmiennych do budowania
+bitbake-layers show-layers #sprawdzanie użytych warstw i ich priorytetów
 ```
